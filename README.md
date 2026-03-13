@@ -25,8 +25,8 @@ One-command setup for the team's shared OpenCode configuration: plugins, MCPs, a
 | `sequential-thinking` | local (npx) | Structured reasoning chains |
 | `playwright` | local (npx) | Browser automation |
 | `astro-docs` | remote | Astro framework documentation |
-| `github` | local (npx) | GitHub API (GITHUB_TOKEN from gh CLI) |
-| `azure-devops` | local (npx) | Azure DevOps (browser MSA login) |
+| `github` | local (npx) | GitHub API (GITHUB_TOKEN from gh CLI) — ⚠️ may have issues, skip if not needed |
+| `azure-devops` | local (npx) | Azure DevOps (browser MSA login) — ⚠️ may have issues, skip if not needed |
 | `chrome-devtools` | local (npx) | Chrome DevTools protocol |
 | `serena` | local (uvx) | Semantic code navigation (LSP-like) |
 
@@ -96,15 +96,15 @@ cp ~/.config/opencode/superpowers/.opencode/plugins/superpowers.js ~/.config/ope
 ```
 `setup.sh` handles this automatically. On re-run it does `git pull` to update.
 
-### GitHub MCP
-Uses local `@github/mcp-server` via npx with a GitHub token — no OAuth flow needed:
+### GitHub MCP ⚠️
+May have connection issues depending on your Copilot plan / `gh` auth status. Uses local `@github/mcp-server` via npx with a GitHub token:
 ```bash
 export GITHUB_TOKEN=$(gh auth token)   # add to ~/.zshrc
 ```
-Reuses the existing `gh` CLI session. No PAT required.
+Reuses the existing `gh` CLI session. No PAT required. **Can be skipped** — set `"enabled": false` in `opencode.json` if not needed.
 
-### Azure DevOps MCP
-Requires `AZURE_DEVOPS_ORG` in environment. Browser MSA login triggers on first use — no manual token setup.
+### Azure DevOps MCP ⚠️
+May have connection issues depending on your org/tenant setup. Requires `AZURE_DEVOPS_ORG` in environment. Browser MSA login triggers on first use. **Can be skipped** — set `"enabled": false` in `opencode.json` if not needed.
 
 ### serena
 Python-based MCP server. Requires `uv` / `uvx`:
