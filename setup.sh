@@ -63,12 +63,34 @@ for k, v in template.get("mcp", {}).items():
         target_mcp[k] = v
 target["mcp"] = target_mcp
 
+# Always apply team agent model overrides (ensures correct GitHub Copilot model IDs)
+if "agent" in template:
+    target["agent"] = template["agent"]
+
 if "$schema" not in target:
     target["$schema"] = template["$schema"]
 
 json.dump(target, open(target_path, "w"), indent=2, ensure_ascii=False)
 print("OK opencode.json merged")
 PYEOF
+
+# Clear GitHub Copilot model variants from opencode state
+# Variants like "high"/"thinking" produce invalid model IDs (e.g. claude-sonnet-4-6-high)
+# that GitHub Copilot does not recognise, causing ProviderModelNotFoundError
+STATE_MODEL="$HOME/.local/state/opencode/model.json"
+if [ -f "$STATE_MODEL" ]; then
+  python3 - "$STATE_MODEL" <<'PYEOF'
+import json, sys
+path = sys.argv[1]
+data = json.load(open(path))
+if data.get("variant"):
+    data["variant"] = {}
+    json.dump(data, open(path, "w"), indent=2, ensure_ascii=False)
+    print("OK cleared github-copilot model variants from state")
+else:
+    print("OK model variants already clean")
+PYEOF
+fi
 
 echo ""
 echo "=== Setup complete ==="
