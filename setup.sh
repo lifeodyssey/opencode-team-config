@@ -74,6 +74,10 @@ json.dump(target, open(target_path, "w"), indent=2, ensure_ascii=False)
 print("OK opencode.json merged")
 PYEOF
 
+# Copy oh-my-opencode agent config (always overwrite - team config controls thinking/fallback)
+cp "$REPO_DIR/oh-my-opencode.json" "$OPENCODE_DIR/oh-my-opencode.json"
+echo "OK oh-my-opencode.json copied"
+
 # Clear GitHub Copilot model variants from opencode state
 # Variants like "high"/"thinking" produce invalid model IDs (e.g. claude-sonnet-4-6-high)
 # that GitHub Copilot does not recognise, causing ProviderModelNotFoundError

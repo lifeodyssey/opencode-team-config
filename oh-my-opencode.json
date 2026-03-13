@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/refs/heads/dev/dist/oh-my-opencode.schema.json",
+  "agents": {
+    "sisyphus":          { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-sonnet-4.6", "github-copilot/claude-haiku-4.5"] },
+    "oracle":            { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-sonnet-4.6", "github-copilot/claude-haiku-4.5"] },
+    "metis":             { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-sonnet-4.6", "github-copilot/claude-haiku-4.5"] },
+    "atlas":             { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-sonnet-4.6", "github-copilot/claude-haiku-4.5"] },
+    "prometheus":        { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-sonnet-4.6", "github-copilot/claude-haiku-4.5"] },
+    "hephaestus":        { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-haiku-4.5"] },
+    "momus":             { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-haiku-4.5"] },
+    "explore":           { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-haiku-4.5"] },
+    "multimodal-looker": { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-haiku-4.5"] },
+    "librarian":         { "thinking": { "type": "disabled" }, "fallback_models": ["github-copilot/claude-haiku-4.5"] }
+  }
+}
