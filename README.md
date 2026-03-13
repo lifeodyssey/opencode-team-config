@@ -25,7 +25,7 @@ One-command setup for the team's shared OpenCode configuration: plugins, MCPs, a
 | `sequential-thinking` | local (npx) | Structured reasoning chains |
 | `playwright` | local (npx) | Browser automation |
 | `astro-docs` | remote | Astro framework documentation |
-| `github` | remote | GitHub API (OAuth) |
+| `github` | local (npx) | GitHub API (GITHUB_TOKEN from gh CLI) |
 | `azure-devops` | local (npx) | Azure DevOps (browser MSA login) |
 | `chrome-devtools` | local (npx) | Chrome DevTools protocol |
 | `serena` | local (uvx) | Semantic code navigation (LSP-like) |
@@ -54,16 +54,16 @@ One-command setup for the team's shared OpenCode configuration: plugins, MCPs, a
 ## Quick Start
 
 ```bash
-# 1. Clone this repo
+# 1. Clone this repo (any path works)
 git clone <repo-url> ~/projects/opencode-team-config
 
 # 2. Run setup (backs up existing config, installs everything)
 cd ~/projects/opencode-team-config
 bash setup.sh
 
-# 3. First-time MCP auth
-opencode mcp auth github        # GitHub OAuth flow
-# Azure DevOps: browser MSA login triggers automatically on first use
+# 3. Add environment variables to ~/.zshrc
+export AZURE_DEVOPS_ORG=your-org-name
+export GITHUB_TOKEN=$(gh auth token)    # reuses gh CLI session, no PAT needed
 ```
 
 npm plugins auto-install on the first `opencode` launch. No manual `npm install` needed.
@@ -97,10 +97,11 @@ cp ~/.config/opencode/superpowers/.opencode/plugins/superpowers.js ~/.config/ope
 `setup.sh` handles this automatically. On re-run it does `git pull` to update.
 
 ### GitHub MCP
-Uses remote OAuth URL — no personal access token needed:
+Uses local `@github/mcp-server` via npx with a GitHub token — no OAuth flow needed:
 ```bash
-opencode mcp auth github
+export GITHUB_TOKEN=$(gh auth token)   # add to ~/.zshrc
 ```
+Reuses the existing `gh` CLI session. No PAT required.
 
 ### Azure DevOps MCP
 Requires `AZURE_DEVOPS_ORG` in environment. Browser MSA login triggers on first use — no manual token setup.

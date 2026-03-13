@@ -28,6 +28,11 @@ echo $AZURE_DEVOPS_ORG
 ```
 Expected: your org name (non-empty string). If empty: add `export AZURE_DEVOPS_ORG=your-org-name` to `~/.zshrc` and `source ~/.zshrc`.
 
+```bash
+echo $GITHUB_TOKEN
+```
+Expected: a GitHub token string. If empty: run `gh auth login` first, then add `export GITHUB_TOKEN=$(gh auth token)` to `~/.zshrc` and `source ~/.zshrc`.
+
 ---
 
 ## Step 1: Backup Existing Config
@@ -145,13 +150,7 @@ Expected: `ASCII text` or similar. Not `symbolic link`.
 ## Step 6: First-time MCP Authentication
 
 ### GitHub
-```bash
-opencode mcp auth github
-```
-Expected: opens browser for GitHub OAuth. Complete the flow. Returns success message.
-
-### Azure DevOps
-No command needed. Browser MSA login triggers automatically on first use of an Azure DevOps tool in opencode.
+No command needed. The GitHub MCP uses `GITHUB_TOKEN` from your environment (set in prerequisites). Azure DevOps browser MSA login triggers automatically on first use of an Azure DevOps tool.
 
 ---
 
@@ -232,9 +231,10 @@ Open opencode in a project directory and type each prompt to verify skill inject
 - Test manually: `uvx --from git+https://github.com/oraios/serena serena --help`
 - Check that `PYTHONUNBUFFERED=1` is in the environment config in `opencode.json`
 
-### GitHub MCP auth fails
-- Re-run `opencode mcp auth github`
-- Check that the `github` MCP entry in `opencode.json` uses the remote URL format (not a local npx command)
+### GitHub MCP fails to connect
+- Verify `GITHUB_TOKEN` is set: `echo $GITHUB_TOKEN`
+- If empty: run `gh auth login`, then `export GITHUB_TOKEN=$(gh auth token)` in `~/.zshrc`
+- Check that the `github` MCP entry uses `type: "local"` with `@github/mcp-server`
 
 ### Azure DevOps MCP not triggering login
 - Verify `AZURE_DEVOPS_ORG` is set: `echo $AZURE_DEVOPS_ORG`
