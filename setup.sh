@@ -33,12 +33,45 @@ fi
 cp "$SUPERPOWERS_DIR/.opencode/plugins/superpowers.js" "$OPENCODE_DIR/plugins/superpowers.js"
 echo "OK plugin: superpowers"
 
+# Install snarktank/ralph (git clone + copy skills, like superpowers)
+RALPH_DIR="$OPENCODE_DIR/ralph"
+if [ -d "$RALPH_DIR/.git" ]; then
+  echo "Updating ralph..."
+  git -C "$RALPH_DIR" pull --quiet
+else
+  echo "Installing ralph..."
+  git clone --quiet https://github.com/snarktank/ralph "$RALPH_DIR"
+fi
+for skill_dir in "$RALPH_DIR/skills"/*/; do
+  skill_name=$(basename "$skill_dir")
+  rm -rf "$OPENCODE_DIR/skills/$skill_name"
+  cp -r "$skill_dir" "$OPENCODE_DIR/skills/$skill_name"
+  echo "OK skill: ralph/$skill_name"
+done
+echo "OK tool: ralph (run: ~/.config/opencode/ralph/ralph.sh)"
+
+# Install ast-grep CLI (used by agents for structural code search)
+if ! command -v sg >/dev/null 2>&1; then
+  echo "Installing ast-grep..."
+  brew install ast-grep 2>/dev/null || npm install -g @ast-grep/cli 2>/dev/null || echo "Warning: ast-grep install failed — install manually: brew install ast-grep"
+else
+  echo "OK tool: ast-grep"
+fi
+
 # Copy custom skills (cp, not symlink)
 for skill_dir in "$REPO_DIR/skills"/*/; do
   skill_name=$(basename "$skill_dir")
   rm -rf "$OPENCODE_DIR/skills/$skill_name"
   cp -r "$skill_dir" "$OPENCODE_DIR/skills/$skill_name"
   echo "OK skill: $skill_name"
+done
+
+# Copy custom commands (cp, not symlink)
+mkdir -p "$OPENCODE_DIR/command"
+for cmd_file in "$REPO_DIR/commands"/*.md; do
+  cmd_name=$(basename "$cmd_file")
+  cp "$cmd_file" "$OPENCODE_DIR/command/$cmd_name"
+  echo "OK command: ${cmd_name%.md}"
 done
 
 # Merge opencode.json (add missing entries only, preserve existing personal config)
@@ -49,8 +82,8 @@ template = json.load(open(sys.argv[1]))
 target_path = sys.argv[2]
 target = json.load(open(target_path)) if os.path.exists(target_path) else {}
 
-# Merge plugin array (deduplicate, preserve order)
-existing_plugins = target.get("plugin", [])
+# Remove oh-my-opencode from plugin list if still present
+existing_plugins = [p for p in target.get("plugin", []) if p != "oh-my-opencode"]
 for p in template.get("plugin", []):
     if p not in existing_plugins:
         existing_plugins.append(p)
@@ -63,7 +96,7 @@ for k, v in template.get("mcp", {}).items():
         target_mcp[k] = v
 target["mcp"] = target_mcp
 
-# Always apply team agent model overrides (ensures correct GitHub Copilot model IDs)
+# Always apply team agent overrides (ensures correct models and prompts)
 if "agent" in template:
     target["agent"] = template["agent"]
 
@@ -74,33 +107,14 @@ json.dump(target, open(target_path, "w"), indent=2, ensure_ascii=False)
 print("OK opencode.json merged")
 PYEOF
 
-# Copy oh-my-opencode agent config (always overwrite - team config controls thinking/fallback)
-cp "$REPO_DIR/oh-my-opencode.json" "$OPENCODE_DIR/oh-my-opencode.json"
-echo "OK oh-my-opencode.json copied"
-
-# Clear GitHub Copilot model variants from opencode state
-# Variants like "high"/"thinking" produce invalid model IDs (e.g. claude-sonnet-4-6-high)
-# that GitHub Copilot does not recognise, causing ProviderModelNotFoundError
-STATE_MODEL="$HOME/.local/state/opencode/model.json"
-if [ -f "$STATE_MODEL" ]; then
-  python3 - "$STATE_MODEL" <<'PYEOF'
-import json, sys
-path = sys.argv[1]
-data = json.load(open(path))
-if data.get("variant"):
-    data["variant"] = {}
-    json.dump(data, open(path, "w"), indent=2, ensure_ascii=False)
-    print("OK cleared github-copilot model variants from state")
-else:
-    print("OK model variants already clean")
-PYEOF
-fi
-
 echo ""
 echo "=== Setup complete ==="
 echo ""
 echo "Required environment variable (add to ~/.zshrc):"
 echo "  export AZURE_DEVOPS_ORG=your-org-name"
+echo ""
+echo "Optional environment variables:"
+echo "  export EXA_API_KEY=your-key   # Exa web search (free: 1000 req/mo at exa.ai)"
 echo ""
 echo "First-time MCP authentication:"
 echo "  opencode mcp auth github      # GitHub OAuth"
@@ -109,6 +123,9 @@ echo ""
 echo "npm plugins will auto-install on first opencode launch."
 echo ""
 echo "Verify installation:"
-echo "  opencode mcp list"
-echo "  opencode debug skill"
-echo "  opencode agent list"
+echo "  opencode mcp list             # Should show 10 MCPs"
+echo "  opencode debug skill          # Should show 11+ skills"
+echo "  opencode agent list           # Should show 10 native agents"
+echo ""
+echo "Ralph autonomous loop (project-level):"
+echo "  ~/.config/opencode/ralph/ralph.sh [max_iterations]"
