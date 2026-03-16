@@ -72,6 +72,7 @@
     "oracle":            { "model": "github-copilot/claude-opus-4.6" },
     "metis":             { "model": "github-copilot/claude-opus-4.6" },
     "atlas":             { "model": "github-copilot/claude-opus-4.6" },
+    "prometheus":        { "model": "github-copilot/claude-opus-4.6" },
     "hephaestus":        { "model": "github-copilot/claude-sonnet-4.6" },
     "momus":             { "model": "github-copilot/claude-sonnet-4.6" },
     "explore":           { "model": "github-copilot/claude-sonnet-4.6" },
