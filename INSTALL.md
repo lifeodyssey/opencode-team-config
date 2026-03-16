@@ -62,28 +62,30 @@ Expected output (in order):
 
 Installing superpowers...          (or "Updating superpowers..." on re-run)
 OK plugin: superpowers
+Installing ralph...                (or "Updating ralph..." on re-run)
+OK skill: ralph/prd
+OK skill: ralph/ralph
+OK tool: ralph (run: ~/.config/opencode/ralph/ralph.sh)
+OK tool: ast-grep
+OK skill: dev-browser
 OK skill: excalidraw-skill
+OK skill: frontend-ui-ux
+OK skill: git-master
 OK skill: google-a2ui
 OK skill: google-adk
 OK skill: humanizer
+OK skill: playwright-cli
 OK skill: python-dev
+OK command: handoff
+OK command: init-deep
+OK command: refactor
+OK command: start-work
+OK command: stop-continuation
+OK command: ultrawork
+OK command: ulw-loop
 OK opencode.json merged
 
 === Setup complete ===
-
-Required environment variable (add to ~/.zshrc):
-  export AZURE_DEVOPS_ORG=your-org-name
-
-First-time MCP authentication:
-  opencode mcp auth github      # GitHub OAuth
-  Azure DevOps: browser login triggers automatically on first use
-
-npm plugins will auto-install on first opencode launch.
-
-Verify installation:
-  opencode mcp list
-  opencode debug skill
-  opencode agent list
 ```
 
 If any line shows an error (not starting with "OK"), stop and diagnose before continuing.
@@ -95,22 +97,22 @@ If any line shows an error (not starting with "OK"), stop and diagnose before co
 ```bash
 ls ~/.config/opencode/
 ```
-Expected: `opencode.json  plugins/  skills/  superpowers/`
+Expected: `opencode.json  plugins/  skills/  superpowers/  ralph/  command/`
 
 ```bash
 ls ~/.config/opencode/skills/
 ```
-Expected: `excalidraw-skill  google-a2ui  google-adk  humanizer  python-dev`
+Expected includes: `dev-browser  excalidraw-skill  frontend-ui-ux  git-master  google-a2ui  google-adk  humanizer  playwright-cli  python-dev  prd  ralph`
+
+```bash
+ls ~/.config/opencode/command/
+```
+Expected includes: `handoff.md  init-deep.md  refactor.md  start-work.md  stop-continuation.md  ultrawork.md  ulw-loop.md`
 
 ```bash
 ls ~/.config/opencode/plugins/
 ```
 Expected: `superpowers.js`
-
-```bash
-cat ~/.config/opencode/plugins/superpowers.js | head -3
-```
-Expected: JavaScript content (not a symlink, not empty). First lines should look like JS code.
 
 ---
 
@@ -121,8 +123,9 @@ cat ~/.config/opencode/opencode.json
 ```
 
 Expected: JSON containing:
-- `"plugin"` array with at least: `@plannotator/opencode@latest`, `oh-my-opencode`, `opencode-froggy`, `opencode-ralph-loop`, `cc-safety-net`, `opencode-worktree`, `opencode-agent-skills`
-- `"mcp"` object with keys: `context7`, `sequential-thinking`, `playwright`, `astro-docs`, `github`, `azure-devops`, `chrome-devtools`, `serena`
+- `"plugin"` array with: `@plannotator/opencode@latest`, `opencode-froggy`, `opencode-ralph-loop`, `cc-safety-net`, `opencode-worktree`, `opencode-agent-skills` (NO `oh-my-opencode`)
+- `"mcp"` object with 10 keys: `context7`, `sequential-thinking`, `playwright`, `astro-docs`, `github`, `azure-devops`, `chrome-devtools`, `serena`, `grep_app`, `exa`
+- `"agent"` object with 10 agents each having `model`, `mode`, `description`, `prompt`, `color`
 
 ---
 
@@ -132,16 +135,14 @@ Expected: JSON containing:
 opencode debug skill
 ```
 
-Expected: lists 5 skills, each with a path under `~/.config/opencode/skills/`:
-- `python-dev` at `~/.config/opencode/skills/python-dev/SKILL.md`
-- `humanizer` at `~/.config/opencode/skills/humanizer/SKILL.md`
-- `google-adk` at `~/.config/opencode/skills/google-adk/SKILL.md`
-- `google-a2ui` at `~/.config/opencode/skills/google-a2ui/SKILL.md`
-- `excalidraw-skill` at `~/.config/opencode/skills/excalidraw-skill/SKILL.md`
+Expected: lists 11+ skills under `~/.config/opencode/skills/`:
+- `python-dev`, `humanizer`, `google-adk`, `google-a2ui`, `excalidraw-skill` (repo)
+- `git-master`, `frontend-ui-ux`, `dev-browser`, `playwright-cli` (oh-my-opencode)
+- `prd`, `ralph` (ralph)
 
 Verify each path is a real file (not a symlink):
 ```bash
-file ~/.config/opencode/skills/python-dev/SKILL.md
+file ~/.config/opencode/skills/git-master/SKILL.md
 ```
 Expected: `ASCII text` or similar. Not `symbolic link`.
 
@@ -150,7 +151,13 @@ Expected: `ASCII text` or similar. Not `symbolic link`.
 ## Step 6: First-time MCP Authentication
 
 ### GitHub
-No command needed. The GitHub MCP uses `GITHUB_TOKEN` from your environment (set in prerequisites). Azure DevOps browser MSA login triggers automatically on first use of an Azure DevOps tool.
+No command needed. The GitHub MCP uses `GITHUB_TOKEN` from your environment (set in prerequisites).
+
+### Azure DevOps
+Browser MSA login triggers automatically on first use of an Azure DevOps tool.
+
+### Exa (optional)
+Add `EXA_API_KEY` to `~/.zshrc` for 1000 free requests/month. Get key at exa.ai. Without a key, the free public endpoint still works with limited quota.
 
 ---
 
@@ -172,11 +179,9 @@ Expected: no errors in the plugin loading phase. After launch, type `/quit` or p
 opencode agent list
 ```
 
-Expected: lists agents including:
-- Agents from `oh-my-opencode` (e.g. Oracle, Hephaestus, Git expert)
-- Agents from `opencode-froggy` (e.g. code-reviewer, rubber-duck)
+Expected: lists 10 native agents: sisyphus, oracle, metis, atlas, prometheus, hephaestus, momus, explore, multimodal-looker, librarian. Plus agents from `opencode-froggy`.
 
-If no agents are listed, the npm plugins may not have installed yet. Re-run `opencode` to trigger install, wait for completion, then re-check.
+If no agents are listed, the npm plugins may not have installed yet. Re-run `opencode`, wait for completion, then re-check.
 
 ---
 
@@ -186,7 +191,7 @@ If no agents are listed, the npm plugins may not have installed yet. Re-run `ope
 opencode mcp list
 ```
 
-Expected: lists 8 MCPs with their status. All should show as configured (connected status depends on runtime).
+Expected: lists 10 MCPs. All should show as configured (connected status depends on runtime).
 
 ---
 
@@ -198,7 +203,7 @@ Re-running setup should succeed with no errors:
 bash ~/projects/opencode-team-config/setup.sh
 ```
 
-Expected: same output as Step 2, with "Updating superpowers..." instead of "Installing superpowers...". Skills are overwritten (expected). No errors.
+Expected: same output as Step 2, with "Updating superpowers..." and "Updating ralph..." on re-run. Skills/commands are overwritten (expected). No errors.
 
 ---
 
@@ -213,6 +218,8 @@ Open opencode in a project directory and type each prompt to verify skill inject
 | `google-adk` | `Create a Google ADK sequential agent` | Provides ADK SequentialAgent code template |
 | `google-a2ui` | `Build an A2UI presenter for my agent` | Provides A2UI presenter pattern |
 | `excalidraw-skill` | `Draw a system architecture diagram with Excalidraw` | Provides Excalidraw MCP operation steps |
+| `git-master` | `Squash the last 3 commits` | Provides git rebase interactive instructions |
+| `frontend-ui-ux` | `Design a card component with Tailwind` | Provides design-focused component guidance |
 
 ---
 
@@ -225,17 +232,21 @@ Open opencode in a project directory and type each prompt to verify skill inject
 ### `opencode agent list` shows no agents
 - npm plugins haven't installed yet — launch `opencode`, wait 30-60 seconds, exit, then retry
 - Check `opencode debug config` to confirm plugins are listed
+- Native agents (sisyphus, oracle, etc.) should appear without plugins
 
 ### serena MCP fails to connect
 - Verify `uvx` is installed: `which uvx`
 - Test manually: `uvx --from git+https://github.com/oraios/serena serena --help`
-- Check that `PYTHONUNBUFFERED=1` is in the environment config in `opencode.json`
 
 ### GitHub MCP fails to connect
 - Verify `GITHUB_TOKEN` is set: `echo $GITHUB_TOKEN`
 - If empty: run `gh auth login`, then `export GITHUB_TOKEN=$(gh auth token)` in `~/.zshrc`
-- Check that the `github` MCP entry uses `type: "local"` with `@github/mcp-server`
 
 ### Azure DevOps MCP not triggering login
 - Verify `AZURE_DEVOPS_ORG` is set: `echo $AZURE_DEVOPS_ORG`
 - The browser login only triggers when you actually use an Azure DevOps tool in a session
+
+### ast-grep not found after setup
+- Install manually: `brew install ast-grep`
+- Or: `npm install -g @ast-grep/cli`
+- Verify: `sg --version`
