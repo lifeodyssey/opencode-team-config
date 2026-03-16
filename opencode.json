@@ -73,10 +73,7 @@
     "exa": {
       "type": "remote",
       "url": "https://mcp.exa.ai/mcp?tools=web_search_exa",
-      "enabled": true,
-      "environment": {
-        "EXA_API_KEY": "{env:EXA_API_KEY}"
-      }
+      "enabled": true
     }
   },
   "agent": {
