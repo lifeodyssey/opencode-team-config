@@ -100,15 +100,20 @@ install_skill "next-best-practices" vercel-labs/next-skills --skill next-best-pr
 install_skill "kotlin-agent-skills" Kotlin/kotlin-agent-skills
 install_skill "terraform-skill" "https://github.com/antonbabenko/terraform-skill"
 install_skill "pg-aiguide" timescale/pg-aiguide
-# openspec: manual install — not compatible with npx skills (no SKILL.md)
-# To install: git clone https://github.com/fission-ai/openspec ~/.config/opencode/skills/openspec
+# openspec: not compatible with npx skills (no SKILL.md), install via git clone
+if [ ! -d "$OPENCODE_DIR/skills/openspec" ]; then
+  echo -n "Installing skill: openspec... "
+  git clone --depth 1 https://github.com/fission-ai/openspec.git "$OPENCODE_DIR/skills/openspec" 2>/dev/null && echo "OK" || echo "SKIP"
+else
+  echo "OK skill: openspec (already installed)"
+fi
 
 # ─── Install AWS agent plugins ──────────────────────────────────
 echo ""
 echo "--- AWS agent plugins ---"
-echo "To install AWS plugins, run inside opencode:"
+echo "Note: awslabs/agent-plugins officially supports Claude Code, Cursor, Codex, Kiro."
+echo "OpenCode is not officially supported yet. If compatible, try inside opencode TUI:"
 echo "  /plugin marketplace add awslabs/agent-plugins"
-echo "  Then install: deploy-on-aws, aws-serverless, databases-on-aws, etc."
 
 # ─── Merge opencode.json ────────────────────────────────────────
 echo ""
@@ -160,17 +165,16 @@ for skill in "${deprecated_skills[@]}"; do
   fi
 done
 
-# ─── Start claude-mem worker if installed ────────────────────────
-if command -v claude-mem >/dev/null 2>&1; then
-  echo ""
-  echo "--- Starting claude-mem worker ---"
-  claude-mem worker start 2>/dev/null &
-  echo "OK claude-mem worker started in background"
-elif npx claude-mem --help >/dev/null 2>&1; then
-  echo ""
-  echo "--- Starting claude-mem worker ---"
-  npx claude-mem worker start 2>/dev/null &
-  echo "OK claude-mem worker started in background"
+# ─── claude-mem: install + auto-start on session ─────────────────
+echo ""
+echo "--- claude-mem ---"
+if ! npx claude-mem status 2>/dev/null | grep -q "running"; then
+  echo "Starting claude-mem worker..."
+  npx claude-mem start 2>/dev/null &
+  sleep 2
+  npx claude-mem status 2>/dev/null | grep -q "running" && echo "OK claude-mem worker running" || echo "Warning: run 'npx claude-mem install --ide opencode' then 'npx claude-mem start'"
+else
+  echo "OK claude-mem worker already running"
 fi
 
 echo ""
