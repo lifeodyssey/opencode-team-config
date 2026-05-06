@@ -94,7 +94,7 @@ User input
 | kotlin-agent-skills | JetBrains official | Kotlin backend |
 | terraform-skill | Community | Terraform/OpenTofu |
 | pg-aiguide | Timescale | PostgreSQL best practices |
-| openspec | Community | Spec-driven development |
+| openspec | Community | Spec-driven development (manual install, see setup.sh) |
 
 ### AWS Plugins (installed manually inside opencode)
 

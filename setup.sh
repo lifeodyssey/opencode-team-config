@@ -100,7 +100,8 @@ install_skill "next-best-practices" vercel-labs/next-skills --skill next-best-pr
 install_skill "kotlin-agent-skills" Kotlin/kotlin-agent-skills
 install_skill "terraform-skill" "https://github.com/antonbabenko/terraform-skill"
 install_skill "pg-aiguide" timescale/pg-aiguide
-install_skill "openspec" fission-ai/openspec
+# openspec: manual install — not compatible with npx skills (no SKILL.md)
+# To install: git clone https://github.com/fission-ai/openspec ~/.config/opencode/skills/openspec
 
 # ─── Install AWS agent plugins ──────────────────────────────────
 echo ""
@@ -151,13 +152,26 @@ PYEOF
 # ─── Cleanup deprecated skills from user config ─────────────────
 echo ""
 echo "--- Cleaning up deprecated configs ---"
-deprecated_skills=("google-adk" "google-a2ui" "excalidraw-skill" "dev-browser")
+deprecated_skills=("google-adk" "google-a2ui" "excalidraw-skill" "dev-browser" "backend-tdd" "python-dev")
 for skill in "${deprecated_skills[@]}"; do
   if [ -d "$OPENCODE_DIR/skills/$skill" ]; then
     rm -rf "$OPENCODE_DIR/skills/$skill"
     echo "Removed deprecated skill: $skill"
   fi
 done
+
+# ─── Start claude-mem worker if installed ────────────────────────
+if command -v claude-mem >/dev/null 2>&1; then
+  echo ""
+  echo "--- Starting claude-mem worker ---"
+  claude-mem worker start 2>/dev/null &
+  echo "OK claude-mem worker started in background"
+elif npx claude-mem --help >/dev/null 2>&1; then
+  echo ""
+  echo "--- Starting claude-mem worker ---"
+  npx claude-mem worker start 2>/dev/null &
+  echo "OK claude-mem worker started in background"
+fi
 
 echo ""
 echo "=== Setup complete ==="

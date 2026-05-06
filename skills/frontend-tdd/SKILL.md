@@ -1,3 +1,8 @@
+---
+name: frontend-tdd
+description: React/TypeScript TDD skill. Invoke before writing any frontend code. Enforces component-driven TDD with Testing Library best practices.
+---
+
 # Frontend TDD Coding Skill
 
 Invoke before writing any frontend React/TypeScript code. Enforces component-driven TDD with project-specific constraints.
