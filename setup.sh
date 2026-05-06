@@ -123,7 +123,7 @@ target_path = sys.argv[2]
 target = json.load(open(target_path)) if os.path.exists(target_path) else {}
 
 # Remove deprecated plugins
-deprecated_plugins = ["oh-my-opencode"]
+deprecated_plugins = ["oh-my-opencode", "claude-mem-opencode"]
 existing_plugins = [p for p in target.get("plugin", []) if p not in deprecated_plugins]
 for p in template.get("plugin", []):
     if p not in existing_plugins:
@@ -162,16 +162,23 @@ for skill in "${deprecated_skills[@]}"; do
   fi
 done
 
-# ─── claude-mem: install + auto-start on session ─────────────────
+# ─── claude-mem: install local plugin + start worker ─────────────
 echo ""
 echo "--- claude-mem ---"
-if ! npx claude-mem status 2>/dev/null | grep -q "running"; then
-  echo "Starting claude-mem worker..."
-  npx claude-mem start 2>/dev/null &
-  sleep 2
-  npx claude-mem status 2>/dev/null | grep -q "running" && echo "OK claude-mem worker running" || echo "Warning: run 'npx claude-mem install --ide opencode' then 'npx claude-mem start'"
+if [ -f "$OPENCODE_DIR/plugins/claude-mem.js" ]; then
+  # Already installed via npx claude-mem install — just start worker
+  if npx claude-mem status 2>/dev/null | grep -q "running"; then
+    echo "OK claude-mem worker already running"
+  else
+    npx claude-mem start 2>/dev/null &
+    echo "OK claude-mem worker starting in background"
+  fi
 else
-  echo "OK claude-mem worker already running"
+  echo "Installing claude-mem..."
+  npx claude-mem install --ide opencode --no-auto-start 2>/dev/null && {
+    npx claude-mem start 2>/dev/null &
+    echo "OK claude-mem installed and worker starting"
+  } || echo "Warning: claude-mem install failed. Run manually: npx claude-mem install --ide opencode"
 fi
 
 echo ""

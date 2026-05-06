@@ -41,7 +41,7 @@ User input
   → squash to 1 commit (trunk-based)
 ```
 
-## Plugins (12)
+## Plugins (11 + claude-mem)
 
 | Plugin | Purpose |
 |--------|---------|
@@ -55,7 +55,7 @@ User input
 | `opencode-worktree` | Git worktree management |
 | `opencode-agent-skills@0.6.4` | Dynamic skill discovery + loading |
 | `@tarquinen/opencode-dcp` | Context pruning (compress/deduplicate/purge) |
-| `claude-mem-opencode` | Cross-session persistent memory |
+| `claude-mem` | Cross-session persistent memory (installed via `npx claude-mem install`) |
 | `context-mode` | MCP output compression (98% reduction) |
 
 ## MCP Servers (8)
