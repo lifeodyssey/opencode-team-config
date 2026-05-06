@@ -4,26 +4,27 @@ One-command setup for the team's shared OpenCode configuration: plugins, MCPs, a
 
 ## Architecture
 
-Three-layer framework with oh-my-opencode-slim orchestration:
-
 | Layer | Framework | Responsibility |
 |-------|-----------|----------------|
 | Decision | gstack (pure MD port) | Requirements validation, architecture review, security audit |
-| Context | GSD (npx gsd-opencode --global) | Spec persistence, atomic task splitting, fresh context per task |
+| Context | GSD (pre-installed via setup.sh) | Spec persistence, atomic task splitting, fresh context per task |
 | Execution | Superpowers | TDD, worktrees, parallel agents, code review |
 | Orchestration | oh-my-opencode-slim | Agent routing, 30+ hooks, session management |
 
 ## Agent Roles
 
-| Agent | Role | Customization |
-|-------|------|---------------|
-| Orchestrator | Routes tasks, creates worktrees, coordinates pipeline | `agents/orchestrator_append.md` |
-| Explorer | Codebase discovery and pattern mapping | slim default |
-| Oracle → plan-reviewer | Reviews PLANS (not code). Max 2 cycles. | `agents/oracle.md` |
-| Fixer → executor | TDD implementation (RED→GREEN→REFACTOR) | `agents/fixer.md` |
-| code-reviewer | Reviews CODE (not plans). 8-dimension framework. | `agents/code-reviewer.md` |
-| Librarian | Documentation research + requirement clarification | `agents/librarian_append.md` |
-| Designer, Council, Observer | Preserved from slim defaults | unchanged |
+| Agent | Model | Role | Config |
+|-------|-------|------|--------|
+| Orchestrator | claude-opus-4.6 | Routes tasks, creates worktrees, coordinates pipeline | `agents/orchestrator_append.md` |
+| plan-reviewer | gpt-5.5 | Reviews PLANS (not code). Max 2 cycles. | custom agent in slim json |
+| executor | gpt-5.5 | TDD implementation (RED→GREEN→REFACTOR) | custom agent in slim json |
+| code-reviewer | claude-sonnet-4.6 | Reviews CODE (not plans). 8-dimension framework. | `agents/code-reviewer.md` |
+| Explorer | gpt-5.4-mini | Codebase discovery and pattern mapping | slim default |
+| Librarian | gpt-5.4-mini | Documentation research + requirement clarification | `agents/librarian_append.md` |
+| Designer | gpt-5.4-mini | UI/UX design | slim default |
+| Council | gpt-5.5 | Multi-model consensus for critical decisions | slim default |
+| oracle | gpt-5.5 | Plan review (slim built-in, kept for routing compat) | slim default |
+| fixer | gpt-5.4-mini | Implementation (slim built-in, kept for routing compat) | slim default |
 
 ## Workflow
 
@@ -54,6 +55,8 @@ User input
 | `@tarquinen/opencode-dcp` | Context pruning (compress/deduplicate/purge) |
 | `opencode-working-memory` | Cross-session memory (zero API calls, compaction-based) |
 | `context-mode` | MCP output compression (98% reduction) |
+
+Note: GSD is installed as skills/commands (not plugin) via `npx gsd-opencode --global` to avoid Bun crash.
 
 ## MCP Servers (8)
 
@@ -91,12 +94,7 @@ User input
 | kotlin-agent-skills | JetBrains official | Kotlin backend |
 | terraform-skill | Community | Terraform/OpenTofu |
 | pg-aiguide | Timescale | PostgreSQL best practices |
-| openspec | Community | Spec-driven development (manual install, see setup.sh) |
-
-### AWS
-
-awslabs/agent-plugins is **not compatible with OpenCode** (only Claude Code, Cursor, Codex, Kiro).
-For AWS integration, use MCP servers (e.g., `@aws-devops/mcp`) instead.
+| openspec | Community | Spec-driven development |
 
 ## Quick Start
 
@@ -112,6 +110,9 @@ bash setup.sh
 export AZURE_DEVOPS_ORG=your-org-name
 export GITHUB_TOKEN=$(gh auth token)
 export EXA_API_KEY=your-key              # optional
+
+# 4. Login to provider
+opencode providers login
 ```
 
 ## Updating
