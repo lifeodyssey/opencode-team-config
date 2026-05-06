@@ -3,62 +3,59 @@ set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OPENCODE_DIR="$HOME/.config/opencode"
+SLIM_DIR="$HOME/.config/opencode/oh-my-opencode-slim"
 
-echo "=== OpenCode Team Config Setup ==="
+echo "=== OpenCode Team Config v2 Setup ==="
 echo ""
 
-# Check prerequisites
+# ─── Prerequisites ───────────────────────────────────────────────
 command -v opencode >/dev/null 2>&1 || {
   echo "Error: opencode not installed."
   echo "Install with: brew install opencode"
   exit 1
 }
 
-command -v uvx >/dev/null 2>&1 || {
-  echo "Warning: uvx not found. serena MCP will not work."
-  echo "Install with: brew install uv"
+# Version check
+CURRENT_VERSION=$(opencode --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+echo "OpenCode version: ${CURRENT_VERSION:-unknown}"
+
+command -v npx >/dev/null 2>&1 || {
+  echo "Error: npx not found. Install Node.js: brew install node"
+  exit 1
 }
 
 mkdir -p "$OPENCODE_DIR/skills" "$OPENCODE_DIR/plugins"
 
-# Install superpowers (git clone + cp, no symlink)
-SUPERPOWERS_DIR="$OPENCODE_DIR/superpowers"
-if [ -d "$SUPERPOWERS_DIR/.git" ]; then
-  echo "Updating superpowers..."
-  git -C "$SUPERPOWERS_DIR" pull --quiet
+# ─── oh-my-opencode-slim ────────────────────────────────────────
+echo ""
+echo "--- Installing oh-my-opencode-slim ---"
+if command -v bunx >/dev/null 2>&1; then
+  bunx oh-my-opencode-slim@latest install 2>/dev/null || echo "Warning: oh-my-opencode-slim install had issues. You may need to run: bunx oh-my-opencode-slim@latest install"
 else
-  echo "Installing superpowers..."
-  git clone --quiet https://github.com/obra/superpowers "$SUPERPOWERS_DIR"
+  echo "Warning: bunx not found. Install bun (brew install oven-sh/bun/bun) then run: bunx oh-my-opencode-slim@latest install"
 fi
-cp "$SUPERPOWERS_DIR/.opencode/plugins/superpowers.js" "$OPENCODE_DIR/plugins/superpowers.js"
-echo "OK plugin: superpowers"
 
-# Install snarktank/ralph (git clone + copy skills, like superpowers)
-RALPH_DIR="$OPENCODE_DIR/ralph"
-if [ -d "$RALPH_DIR/.git" ]; then
-  echo "Updating ralph..."
-  git -C "$RALPH_DIR" pull --quiet
-else
-  echo "Installing ralph..."
-  git clone --quiet https://github.com/snarktank/ralph "$RALPH_DIR"
-fi
-for skill_dir in "$RALPH_DIR/skills"/*/; do
-  skill_name=$(basename "$skill_dir")
-  rm -rf "$OPENCODE_DIR/skills/$skill_name"
-  cp -r "$skill_dir" "$OPENCODE_DIR/skills/$skill_name"
-  echo "OK skill: ralph/$skill_name"
+# ─── Copy agent prompt customizations for slim ──────────────────
+echo ""
+echo "--- Configuring agent prompts ---"
+mkdir -p "$SLIM_DIR"
+for prompt_file in "$REPO_DIR/agents"/*.md; do
+  prompt_name=$(basename "$prompt_file")
+  cp "$prompt_file" "$SLIM_DIR/$prompt_name"
+  echo "OK agent prompt: $prompt_name"
 done
-echo "OK tool: ralph (run: ~/.config/opencode/ralph/ralph.sh)"
 
-# Install ast-grep CLI (used by agents for structural code search)
+# ─── Install ast-grep CLI ───────────────────────────────────────
 if ! command -v sg >/dev/null 2>&1; then
   echo "Installing ast-grep..."
-  brew install ast-grep 2>/dev/null || npm install -g @ast-grep/cli 2>/dev/null || echo "Warning: ast-grep install failed — install manually: brew install ast-grep"
+  brew install ast-grep 2>/dev/null || npm install -g @ast-grep/cli 2>/dev/null || echo "Warning: ast-grep install failed"
 else
   echo "OK tool: ast-grep"
 fi
 
-# Copy custom skills (cp, not symlink)
+# ─── Copy custom skills ─────────────────────────────────────────
+echo ""
+echo "--- Installing custom skills ---"
 for skill_dir in "$REPO_DIR/skills"/*/; do
   skill_name=$(basename "$skill_dir")
   rm -rf "$OPENCODE_DIR/skills/$skill_name"
@@ -66,7 +63,7 @@ for skill_dir in "$REPO_DIR/skills"/*/; do
   echo "OK skill: $skill_name"
 done
 
-# Copy custom commands (cp, not symlink)
+# ─── Copy custom commands ────────────────────────────────────────
 mkdir -p "$OPENCODE_DIR/command"
 for cmd_file in "$REPO_DIR/commands"/*.md; do
   cmd_name=$(basename "$cmd_file")
@@ -74,7 +71,35 @@ for cmd_file in "$REPO_DIR/commands"/*.md; do
   echo "OK command: ${cmd_name%.md}"
 done
 
-# Merge opencode.json (add missing entries only, preserve existing personal config)
+# ─── Install third-party skills via npx skills ──────────────────
+echo ""
+echo "--- Installing third-party skills ---"
+
+install_skill() {
+  local name="$1"
+  shift
+  echo -n "Installing skill: $name... "
+  npx skills@latest add "$@" 2>/dev/null && echo "OK" || echo "SKIP (may already exist)"
+}
+
+install_skill "mattpocock/skills" mattpocock/skills
+install_skill "vercel-react-best-practices" vercel-labs/agent-skills --skill vercel-react-best-practices
+install_skill "next-best-practices" vercel-labs/next-skills --skill next-best-practices
+install_skill "kotlin-agent-skills" Kotlin/kotlin-agent-skills
+install_skill "terraform-skill" "https://github.com/antonbabenko/terraform-skill"
+install_skill "pg-aiguide" timescale/pg-aiguide
+install_skill "openspec" fission-ai/openspec
+
+# ─── Install AWS agent plugins ──────────────────────────────────
+echo ""
+echo "--- AWS agent plugins ---"
+echo "To install AWS plugins, run inside opencode:"
+echo "  /plugin marketplace add awslabs/agent-plugins"
+echo "  Then install: deploy-on-aws, aws-serverless, databases-on-aws, etc."
+
+# ─── Merge opencode.json ────────────────────────────────────────
+echo ""
+echo "--- Merging opencode.json ---"
 python3 - "$REPO_DIR/opencode.json" "$OPENCODE_DIR/opencode.json" <<'PYEOF'
 import json, sys, os
 
@@ -82,8 +107,9 @@ template = json.load(open(sys.argv[1]))
 target_path = sys.argv[2]
 target = json.load(open(target_path)) if os.path.exists(target_path) else {}
 
-# Remove oh-my-opencode from plugin list if still present
-existing_plugins = [p for p in target.get("plugin", []) if p != "oh-my-opencode"]
+# Remove deprecated plugins
+deprecated_plugins = ["oh-my-opencode"]
+existing_plugins = [p for p in target.get("plugin", []) if p not in deprecated_plugins]
 for p in template.get("plugin", []):
     if p not in existing_plugins:
         existing_plugins.append(p)
@@ -91,14 +117,17 @@ target["plugin"] = existing_plugins
 
 # Merge mcp (add missing only, never overwrite personal entries)
 target_mcp = target.get("mcp", {})
+# Remove deprecated MCPs
+deprecated_mcps = ["astro-docs", "chrome-devtools", "serena"]
+for dep in deprecated_mcps:
+    target_mcp.pop(dep, None)
 for k, v in template.get("mcp", {}).items():
     if k not in target_mcp:
         target_mcp[k] = v
 target["mcp"] = target_mcp
 
-# Always apply team agent overrides (ensures correct models and prompts)
-if "agent" in template:
-    target["agent"] = template["agent"]
+# Remove old native agents (slim handles agent routing now)
+target.pop("agent", None)
 
 if "$schema" not in target:
     target["$schema"] = template["$schema"]
@@ -107,25 +136,36 @@ json.dump(target, open(target_path, "w"), indent=2, ensure_ascii=False)
 print("OK opencode.json merged")
 PYEOF
 
+# ─── Cleanup deprecated skills from user config ─────────────────
+echo ""
+echo "--- Cleaning up deprecated configs ---"
+deprecated_skills=("google-adk" "google-a2ui" "excalidraw-skill" "dev-browser")
+for skill in "${deprecated_skills[@]}"; do
+  if [ -d "$OPENCODE_DIR/skills/$skill" ]; then
+    rm -rf "$OPENCODE_DIR/skills/$skill"
+    echo "Removed deprecated skill: $skill"
+  fi
+done
+
 echo ""
 echo "=== Setup complete ==="
 echo ""
-echo "Required environment variable (add to ~/.zshrc):"
+echo "Required environment variables (add to ~/.zshrc):"
 echo "  export AZURE_DEVOPS_ORG=your-org-name"
 echo ""
 echo "Optional environment variables:"
-echo "  export EXA_API_KEY=your-key   # Exa web search (free: 1000 req/mo at exa.ai)"
+echo "  export EXA_API_KEY=your-key       # Exa web search (free: 1000 req/mo at exa.ai)"
+echo "  export DATABASE_URL=postgres://... # For postgres MCP (disabled by default)"
 echo ""
-echo "First-time MCP authentication:"
-echo "  opencode mcp auth github      # GitHub OAuth"
-echo "  Azure DevOps: browser login triggers automatically on first use"
+echo "First-time setup:"
+echo "  opencode mcp auth github           # GitHub OAuth"
+echo "  bunx oh-my-opencode-slim@latest install  # If not done above"
 echo ""
-echo "npm plugins will auto-install on first opencode launch."
+echo "AWS plugins (run inside opencode):"
+echo "  /plugin marketplace add awslabs/agent-plugins"
 echo ""
 echo "Verify installation:"
-echo "  opencode mcp list             # Should show 10 MCPs"
-echo "  opencode debug skill          # Should show 11+ skills"
-echo "  opencode agent list           # Should show 10 native agents"
+echo "  opencode mcp list                  # Should show 8 MCPs"
+echo "  opencode debug skill               # Should show 8+ skills"
+echo "  opencode debug plugin              # Should show 12 plugins"
 echo ""
-echo "Ralph autonomous loop (project-level):"
-echo "  ~/.config/opencode/ralph/ralph.sh [max_iterations]"

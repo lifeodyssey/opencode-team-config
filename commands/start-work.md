@@ -1,30 +1,27 @@
 ---
-description: (builtin) Start Sisyphus work session from Prometheus plan
-agent: atlas
+description: (builtin) Start work session from a plan
+agent: Orchestrator
 ---
 
-You are starting a Sisyphus work session.
+You are starting a work session.
 
 ## ARGUMENTS
 
 - `/start-work [plan-name] [--worktree <path>]`
   - `plan-name` (optional): name or partial match of the plan to start
   - `--worktree <path>` (optional): absolute path to an existing git worktree to work in
-    - If specified and valid: hook pre-sets worktree_path in boulder.json
-    - If specified but invalid: you must run `git worktree add <path> <branch>` first
-    - If omitted: you MUST choose or create a worktree (see Worktree Setup below)
 
 ## WHAT TO DO
 
-1. **Find available plans**: Search for Prometheus-generated plan files at `.sisyphus/plans/`
+1. **Find available plans**: Search for plan files at `.sisyphus/plans/` or `task_plan.md`
 
-2. **Check for active boulder state**: Read `.sisyphus/boulder.json` if it exists
+2. **Check for active state**: Read `.sisyphus/boulder.json` if it exists
 
 3. **Decision logic**:
-   - If `.sisyphus/boulder.json` exists AND plan is NOT complete (has unchecked boxes):
+   - If `.sisyphus/boulder.json` exists AND plan has unchecked cards:
      - **APPEND** current session to session_ids
-     - Continue work on existing plan
-   - If no active plan OR plan is complete:
+     - Continue work from last unchecked card
+   - If no active plan OR all cards complete:
      - List available plan files
      - If ONE plan: auto-select it
      - If MULTIPLE plans: show list with timestamps, ask user to select
@@ -38,7 +35,7 @@ You are starting a Sisyphus work session.
 5. **Create/Update boulder.json**:
    ```json
    {
-     "active_plan": "/absolute/path/to/plan.md",
+     "active_plan": "/absolute/path/to/task_plan.md",
      "started_at": "ISO_TIMESTAMP",
      "session_ids": ["session_id_1", "session_id_2"],
      "plan_name": "plan-name",
@@ -46,51 +43,16 @@ You are starting a Sisyphus work session.
    }
    ```
 
-6. **Read the plan file** and start executing tasks according to atlas workflow
-
-## OUTPUT FORMAT
-
-When listing plans for selection:
-```
-Available Work Plans
-
-Current Time: {ISO timestamp}
-Session ID: {current session id}
-
-1. [plan-name-1.md] - Modified: {date} - Progress: 3/10 tasks
-2. [plan-name-2.md] - Modified: {date} - Progress: 0/5 tasks
-
-Which plan would you like to work on? (Enter number or plan name)
-```
-
-When resuming existing work:
-```
-Resuming Work Session
-
-Active Plan: {plan-name}
-Progress: {completed}/{total} tasks
-Sessions: {count} (appending current session)
-Worktree: {worktree_path}
-
-Reading plan and continuing from last incomplete task...
-```
-
-When auto-selecting single plan:
-```
-Starting Work Session
-
-Plan: {plan-name}
-Session ID: {session_id}
-Started: {timestamp}
-Worktree: {worktree_path}
-
-Reading plan and beginning execution...
-```
+6. **Read the plan file** and start executing cards using the Orchestrator workflow:
+   - For each unchecked card: @Fixer (TDD) → @code-reviewer (validate)
+   - Mark ✅ as each card completes
+   - Track progress in progress.md
 
 ## CRITICAL
 
 - The session_id is injected by the hook - use it directly
 - Always update boulder.json BEFORE starting work
-- Always set worktree_path in boulder.json before executing any tasks
-- Read the FULL plan file before delegating any tasks
-- Follow atlas delegation protocols (7-section format)
+- Always set worktree_path in boulder.json before executing any cards
+- Read the FULL plan file before delegating any cards
+- Follow Orchestrator pipeline (Phase 5: EXECUTE)
+- Trunk-based: squash all commits to 1 before completion
