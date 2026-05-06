@@ -9,7 +9,7 @@ Three-layer framework with oh-my-opencode-slim orchestration:
 | Layer | Framework | Responsibility |
 |-------|-----------|----------------|
 | Decision | gstack (pure MD port) | Requirements validation, architecture review, security audit |
-| Context | GSD (gsd-opencode) | Spec persistence, atomic task splitting, fresh context per task |
+| Context | GSD (npx gsd-opencode --global) | Spec persistence, atomic task splitting, fresh context per task |
 | Execution | Superpowers | TDD, worktrees, parallel agents, code review |
 | Orchestration | oh-my-opencode-slim | Agent routing, 30+ hooks, session management |
 
@@ -41,13 +41,12 @@ User input
   → squash to 1 commit (trunk-based)
 ```
 
-## Plugins (9)
+## Plugins (8)
 
 | Plugin | Purpose |
 |--------|---------|
 | `oh-my-opencode-slim` | Agent orchestration + 30+ hooks |
 | `superpowers` | TDD, worktrees, parallel agents, code review skills |
-| `gsd-opencode` | Spec-driven development, fresh context per task |
 | `@plannotator/opencode@0.19.3` | Interactive plan annotation UI |
 | `opencode-ralph-loop` | Autonomous iteration loop |
 | `cc-safety-net@0.6.0` | Destructive command interception |
