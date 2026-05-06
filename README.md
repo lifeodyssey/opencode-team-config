@@ -55,7 +55,7 @@ User input
 | `opencode-worktree` | Git worktree management |
 | `opencode-agent-skills@0.6.4` | Dynamic skill discovery + loading |
 | `@tarquinen/opencode-dcp` | Context pruning (compress/deduplicate/purge) |
-| `claude-mem` | Cross-session persistent memory (installed via `npx claude-mem install`) |
+| `opencode-working-memory` | Cross-session memory (zero API calls, compaction-based) |
 | `context-mode` | MCP output compression (98% reduction) |
 
 ## MCP Servers (8)

@@ -155,6 +155,12 @@ PYEOF
 echo ""
 echo "--- Cleaning up deprecated configs ---"
 deprecated_skills=("google-adk" "google-a2ui" "excalidraw-skill" "dev-browser" "backend-tdd" "python-dev")
+
+# Remove old claude-mem plugin (replaced by opencode-working-memory)
+if [ -f "$OPENCODE_DIR/plugins/claude-mem.js" ]; then
+  rm -f "$OPENCODE_DIR/plugins/claude-mem.js"
+  echo "Removed deprecated plugin: claude-mem.js (replaced by opencode-working-memory)"
+fi
 for skill in "${deprecated_skills[@]}"; do
   if [ -d "$OPENCODE_DIR/skills/$skill" ]; then
     rm -rf "$OPENCODE_DIR/skills/$skill"
@@ -162,24 +168,9 @@ for skill in "${deprecated_skills[@]}"; do
   fi
 done
 
-# ─── claude-mem: install local plugin + start worker ─────────────
-echo ""
-echo "--- claude-mem ---"
-if [ -f "$OPENCODE_DIR/plugins/claude-mem.js" ]; then
-  # Already installed via npx claude-mem install — just start worker
-  if npx claude-mem status 2>/dev/null | grep -q "running"; then
-    echo "OK claude-mem worker already running"
-  else
-    npx claude-mem start 2>/dev/null &
-    echo "OK claude-mem worker starting in background"
-  fi
-else
-  echo "Installing claude-mem..."
-  npx claude-mem install --ide opencode --no-auto-start 2>/dev/null && {
-    npx claude-mem start 2>/dev/null &
-    echo "OK claude-mem installed and worker starting"
-  } || echo "Warning: claude-mem install failed. Run manually: npx claude-mem install --ide opencode"
-fi
+# ─── opencode-working-memory (replaces claude-mem) ───────────────
+# Zero config, zero API calls — memory piggybacks on compaction.
+# Installed via opencode.json plugin list, no setup needed.
 
 echo ""
 echo "=== Setup complete ==="

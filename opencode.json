@@ -11,6 +11,7 @@
     "opencode-worktree",
     "opencode-agent-skills@0.6.4",
     "@tarquinen/opencode-dcp",
+    "opencode-working-memory",
     "context-mode"
   ],
   "mcp": {
