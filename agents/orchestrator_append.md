@@ -3,7 +3,7 @@
 ### Task Classification
 Classify every task: feature | bugfix | refactor | infra | research
 
-### Worktree (plugin: opencode-worktree)
+### Worktree (superpowers: /using-git-worktrees)
 Always create isolated worktree: `git worktree add .worktrees/feat-<name> -b feat/<name>`
 
 ### Task Tracking (Card System)

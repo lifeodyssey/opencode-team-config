@@ -41,7 +41,7 @@ User input
   → squash to 1 commit (trunk-based)
 ```
 
-## Plugins (10)
+## Plugins (9)
 
 | Plugin | Purpose |
 |--------|---------|
@@ -51,7 +51,6 @@ User input
 | `@plannotator/opencode@0.19.3` | Interactive plan annotation UI |
 | `opencode-ralph-loop` | Autonomous iteration loop |
 | `cc-safety-net@0.6.0` | Destructive command interception |
-| `opencode-worktree` | Git worktree management |
 | `opencode-agent-skills@0.6.4` | Dynamic skill discovery + loading |
 | `@tarquinen/opencode-dcp` | Context pruning (compress/deduplicate/purge) |
 | `opencode-working-memory` | Cross-session memory (zero API calls, compaction-based) |

@@ -112,11 +112,18 @@ fi
 # awslabs/agent-plugins only supports Claude Code, Cursor, Codex, Kiro.
 # NOT compatible with OpenCode. Use AWS MCP servers instead if needed.
 
+# ─── Pre-install GSD (prevents interactive prompt on first launch) ────
+echo ""
+echo "--- Installing GSD ---"
+npx gsd-opencode --global 2>/dev/null && echo "OK gsd-opencode installed" || echo "SKIP gsd-opencode"
+
 # ─── Clear broken plugin caches (forces clean reinstall on next launch) ──
 echo ""
 echo "--- Clearing plugin caches ---"
 rm -rf "$HOME/.cache/opencode/packages/gsd-opencode@latest" \
-       "$HOME/.cache/opencode/packages/opencode-froggy@0.10.2" 2>/dev/null
+       "$HOME/.cache/opencode/packages/opencode-froggy@0.10.2" \
+       "$HOME/.cache/opencode/packages/opencode-worktree@latest" \
+       "$HOME/.config/opencode/gsd" 2>/dev/null
 echo "OK plugin caches cleared (will rebuild on next opencode launch)"
 
 # ─── Upgrade Bun (fixes NAPI crash bugs) ─────────────────────────
@@ -137,8 +144,11 @@ target_path = sys.argv[2]
 target = json.load(open(target_path)) if os.path.exists(target_path) else {}
 
 # Remove deprecated plugins
-deprecated_plugins = ["oh-my-opencode", "claude-mem-opencode", "opencode-froggy@0.10.2"]
-existing_plugins = [p for p in target.get("plugin", []) if p not in deprecated_plugins]
+deprecated_exact = ["oh-my-opencode", "claude-mem-opencode"]
+deprecated_prefix = ["opencode-froggy", "opencode-worktree", "claude-mem"]  # matches any version
+existing_plugins = [p for p in target.get("plugin", [])
+    if p not in deprecated_exact
+    and not any(p.startswith(d) for d in deprecated_prefix)]
 for p in template.get("plugin", []):
     if p not in existing_plugins:
         existing_plugins.append(p)

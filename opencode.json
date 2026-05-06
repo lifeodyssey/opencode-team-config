@@ -3,11 +3,9 @@
   "plugin": [
     "oh-my-opencode-slim",
     "superpowers@git+https://github.com/obra/superpowers.git",
-    "gsd-opencode",
     "@plannotator/opencode@0.19.3",
     "opencode-ralph-loop",
     "cc-safety-net@0.6.0",
-    "opencode-worktree",
     "opencode-agent-skills@0.6.4",
     "@tarquinen/opencode-dcp",
     "opencode-working-memory",
