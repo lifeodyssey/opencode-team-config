@@ -36,7 +36,7 @@ mkdir -p "$OPENCODE_DIR/skills" "$OPENCODE_DIR/plugins"
 echo ""
 echo "--- Installing oh-my-opencode-slim ---"
 if command -v bunx >/dev/null 2>&1; then
-  bunx oh-my-opencode-slim@latest install 2>/dev/null || echo "Warning: oh-my-opencode-slim install had issues. You may need to run: bunx oh-my-opencode-slim@latest install"
+  bunx oh-my-opencode-slim@latest install --reset 2>/dev/null || echo "Warning: oh-my-opencode-slim install had issues. You may need to run: bunx oh-my-opencode-slim@latest install"
 else
   echo "Warning: bunx not found. Install bun (brew install oven-sh/bun/bun) then run: bunx oh-my-opencode-slim@latest install"
 fi
@@ -108,12 +108,9 @@ else
   echo "OK skill: openspec (already installed)"
 fi
 
-# ─── Install AWS agent plugins ──────────────────────────────────
-echo ""
-echo "--- AWS agent plugins ---"
-echo "Note: awslabs/agent-plugins officially supports Claude Code, Cursor, Codex, Kiro."
-echo "OpenCode is not officially supported yet. If compatible, try inside opencode TUI:"
-echo "  /plugin marketplace add awslabs/agent-plugins"
+# ─── AWS note ────────────────────────────────────────────────────
+# awslabs/agent-plugins only supports Claude Code, Cursor, Codex, Kiro.
+# NOT compatible with OpenCode. Use AWS MCP servers instead if needed.
 
 # ─── Merge opencode.json ────────────────────────────────────────
 echo ""
@@ -188,14 +185,10 @@ echo "  export EXA_API_KEY=your-key       # Exa web search (free: 1000 req/mo at
 echo "  export DATABASE_URL=postgres://... # For postgres MCP (disabled by default)"
 echo ""
 echo "First-time setup:"
-echo "  opencode mcp auth github           # GitHub OAuth"
-echo "  bunx oh-my-opencode-slim@latest install  # If not done above"
-echo ""
-echo "AWS plugins (run inside opencode):"
-echo "  /plugin marketplace add awslabs/agent-plugins"
+echo "  opencode providers login            # Login to GitHub Copilot or other provider"
 echo ""
 echo "Verify installation:"
-echo "  opencode mcp list                  # Should show 8 MCPs"
+echo "  opencode mcp list                  # Should show 9 MCPs"
 echo "  opencode debug skill               # Should show 8+ skills"
-echo "  opencode debug plugin              # Should show 12 plugins"
+echo "  opencode agent list                # Should show slim agents (orchestrator, executor, etc.)"
 echo ""

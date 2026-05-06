@@ -96,10 +96,10 @@ User input
 | pg-aiguide | Timescale | PostgreSQL best practices |
 | openspec | Community | Spec-driven development (manual install, see setup.sh) |
 
-### AWS Plugins (installed manually inside opencode)
+### AWS
 
-Run `/plugin marketplace add awslabs/agent-plugins` then install:
-deploy-on-aws, aws-serverless, aws-amplify, databases-on-aws, amazon-location-service, migration-to-aws, sagemaker-ai
+awslabs/agent-plugins is **not compatible with OpenCode** (only Claude Code, Cursor, Codex, Kiro).
+For AWS integration, use MCP servers (e.g., `@aws-devops/mcp`) instead.
 
 ## Quick Start
 
@@ -115,9 +115,6 @@ bash setup.sh
 export AZURE_DEVOPS_ORG=your-org-name
 export GITHUB_TOKEN=$(gh auth token)
 export EXA_API_KEY=your-key              # optional
-
-# 4. Install AWS plugins (inside opencode)
-/plugin marketplace add awslabs/agent-plugins
 ```
 
 ## Updating
