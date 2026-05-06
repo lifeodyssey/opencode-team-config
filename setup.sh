@@ -15,9 +15,15 @@ command -v opencode >/dev/null 2>&1 || {
   exit 1
 }
 
-# Version check
+# Version check + upgrade
 CURRENT_VERSION=$(opencode --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 echo "OpenCode version: ${CURRENT_VERSION:-unknown}"
+
+echo "Checking for OpenCode updates..."
+brew upgrade opencode 2>/dev/null && {
+  NEW_VERSION=$(opencode --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  echo "OpenCode upgraded: $CURRENT_VERSION → $NEW_VERSION"
+} || echo "OpenCode is up to date."
 
 command -v npx >/dev/null 2>&1 || {
   echo "Error: npx not found. Install Node.js: brew install node"
@@ -79,7 +85,7 @@ install_skill() {
   local name="$1"
   shift
   echo -n "Installing skill: $name... "
-  npx skills@latest add "$@" 2>/dev/null && echo "OK" || echo "SKIP (may already exist)"
+  npx skills@latest add "$@" --yes --global 2>/dev/null && echo "OK" || echo "SKIP (may already exist)"
 }
 
 install_skill "mattpocock/skills" mattpocock/skills
