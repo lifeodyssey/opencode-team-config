@@ -1,6 +1,10 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
   "preset": "github-copilot",
+  "agents": {
+    "oracle": { "displayName": "plan-reviewer" },
+    "fixer": { "displayName": "executor" }
+  },
   "presets": {
     "github-copilot": {
       "orchestrator": {
