@@ -137,7 +137,7 @@ target_path = sys.argv[2]
 target = json.load(open(target_path)) if os.path.exists(target_path) else {}
 
 # Remove deprecated plugins
-deprecated_plugins = ["oh-my-opencode", "claude-mem-opencode"]
+deprecated_plugins = ["oh-my-opencode", "claude-mem-opencode", "opencode-froggy@0.10.2"]
 existing_plugins = [p for p in target.get("plugin", []) if p not in deprecated_plugins]
 for p in template.get("plugin", []):
     if p not in existing_plugins:

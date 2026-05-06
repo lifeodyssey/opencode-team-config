@@ -5,7 +5,6 @@
     "superpowers@git+https://github.com/obra/superpowers.git",
     "gsd-opencode",
     "@plannotator/opencode@0.19.3",
-    "opencode-froggy@0.10.2",
     "opencode-ralph-loop",
     "cc-safety-net@0.6.0",
     "opencode-worktree",

@@ -41,7 +41,7 @@ User input
   → squash to 1 commit (trunk-based)
 ```
 
-## Plugins (11 + claude-mem)
+## Plugins (10)
 
 | Plugin | Purpose |
 |--------|---------|
@@ -49,7 +49,6 @@ User input
 | `superpowers` | TDD, worktrees, parallel agents, code review skills |
 | `gsd-opencode` | Spec-driven development, fresh context per task |
 | `@plannotator/opencode@0.19.3` | Interactive plan annotation UI |
-| `opencode-froggy@0.10.2` | architect/doc-writer agents + gitingest tool |
 | `opencode-ralph-loop` | Autonomous iteration loop |
 | `cc-safety-net@0.6.0` | Destructive command interception |
 | `opencode-worktree` | Git worktree management |
