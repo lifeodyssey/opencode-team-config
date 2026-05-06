@@ -78,9 +78,7 @@ User input
 | Skill | Purpose |
 |-------|---------|
 | `team-tdd` | Comprehensive TDD (superpowers iron law + mattpocock vertical slicing + code constraints) |
-| `backend-tdd` | Python TDD constraints (1-10-50 rule, type safety) |
 | `frontend-tdd` | React TDD constraints (component size, query priority) |
-| `python-dev` | Python/uv/pytest/ruff development |
 | `git-master` | Advanced git workflows |
 | `frontend-ui-ux` | Tailwind/CSS/design patterns |
 | `playwright-cli` | E2E testing |
