@@ -1,0 +1,55 @@
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+  "preset": "github-copilot",
+  "presets": {
+    "github-copilot": {
+      "orchestrator": {
+        "model": "github-copilot/claude-opus-4.7",
+        "skills": ["*"],
+        "mcps": ["*", "!context7"]
+      },
+      "oracle": {
+        "model": "github-copilot/claude-opus-4.7",
+        "variant": "high",
+        "skills": ["simplify"],
+        "mcps": ["context7", "grep_app"]
+      },
+      "fixer": {
+        "model": "github-copilot/gpt-5.3-codex",
+        "variant": "medium",
+        "skills": [],
+        "mcps": []
+      },
+      "code-reviewer": {
+        "model": "github-copilot/gpt-5.5",
+        "variant": "high",
+        "skills": [],
+        "mcps": ["context7", "grep_app", "exa"]
+      },
+      "explorer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": []
+      },
+      "librarian": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "low",
+        "skills": [],
+        "mcps": ["websearch", "context7", "grep_app"]
+      },
+      "designer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "medium",
+        "skills": ["agent-browser"],
+        "mcps": []
+      },
+      "council": {
+        "model": "github-copilot/claude-opus-4.7",
+        "variant": "high",
+        "skills": [],
+        "mcps": []
+      }
+    }
+  }
+}

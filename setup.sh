@@ -41,9 +41,15 @@ else
   echo "Warning: bunx not found. Install bun (brew install oven-sh/bun/bun) then run: bunx oh-my-opencode-slim@latest install"
 fi
 
-# ─── Copy agent prompt customizations for slim ──────────────────
+# ─── Copy slim config (models + presets) ────────────────────────
 echo ""
-echo "--- Configuring agent prompts ---"
+echo "--- Configuring oh-my-opencode-slim ---"
+if [ -f "$REPO_DIR/oh-my-opencode-slim.json" ]; then
+  cp "$REPO_DIR/oh-my-opencode-slim.json" "$OPENCODE_DIR/oh-my-opencode-slim.json"
+  echo "OK slim config: github-copilot preset"
+fi
+
+# ─── Copy agent prompt customizations for slim ──────────────────
 mkdir -p "$SLIM_DIR"
 for prompt_file in "$REPO_DIR/agents"/*.md; do
   prompt_name=$(basename "$prompt_file")
