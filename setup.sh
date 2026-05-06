@@ -112,6 +112,20 @@ fi
 # awslabs/agent-plugins only supports Claude Code, Cursor, Codex, Kiro.
 # NOT compatible with OpenCode. Use AWS MCP servers instead if needed.
 
+# ─── Clear broken plugin caches (forces clean reinstall on next launch) ──
+echo ""
+echo "--- Clearing plugin caches ---"
+rm -rf "$HOME/.cache/opencode/packages/gsd-opencode@latest" \
+       "$HOME/.cache/opencode/packages/opencode-froggy@0.10.2" 2>/dev/null
+echo "OK plugin caches cleared (will rebuild on next opencode launch)"
+
+# ─── Upgrade Bun (fixes NAPI crash bugs) ─────────────────────────
+if command -v bun >/dev/null 2>&1; then
+  echo ""
+  echo "--- Upgrading Bun ---"
+  bun upgrade 2>/dev/null && echo "OK bun upgraded" || echo "Bun is up to date"
+fi
+
 # ─── Merge opencode.json ────────────────────────────────────────
 echo ""
 echo "--- Merging opencode.json ---"
