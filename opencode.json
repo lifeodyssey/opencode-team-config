@@ -1,7 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
   "plugin": [
-    "oh-my-opencode-slim@1.0.6",
+    "oh-my-opencode-slim",
     "superpowers@git+https://github.com/obra/superpowers.git",
     "@plannotator/opencode@0.19.3",
     "opencode-ralph-loop",

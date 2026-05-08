@@ -15,15 +15,11 @@ command -v opencode >/dev/null 2>&1 || {
   exit 1
 }
 
-# Version check + upgrade
+# Version check (no auto-upgrade — Bun 1.3.13 in newer versions has NAPI segfault)
 CURRENT_VERSION=$(opencode --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 echo "OpenCode version: ${CURRENT_VERSION:-unknown}"
-
-echo "Checking for OpenCode updates..."
-brew upgrade opencode 2>/dev/null && {
-  NEW_VERSION=$(opencode --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-  echo "OpenCode upgraded: $CURRENT_VERSION → $NEW_VERSION"
-} || echo "OpenCode is up to date."
+echo "Auto-upgrade disabled (Bun NAPI segfault in newer versions, see opencode#24148)"
+brew pin opencode 2>/dev/null || true
 
 command -v npx >/dev/null 2>&1 || {
   echo "Error: npx not found. Install Node.js: brew install node"
@@ -146,7 +142,6 @@ echo "--- Clearing plugin caches ---"
 rm -rf "$HOME/.cache/opencode/packages/gsd-opencode@latest" \
        "$HOME/.cache/opencode/packages/opencode-froggy@0.10.2" \
        "$HOME/.cache/opencode/packages/opencode-worktree@latest" \
-       "$HOME/.cache/opencode/packages/oh-my-opencode-slim@latest" \
        "$HOME/.config/opencode/gsd" 2>/dev/null
 echo "OK plugin caches cleared (will rebuild on next opencode launch)"
 
