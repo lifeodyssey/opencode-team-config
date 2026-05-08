@@ -15,10 +15,22 @@ command -v opencode >/dev/null 2>&1 || {
   exit 1
 }
 
-# Version check (no auto-upgrade — Bun 1.3.13 in newer versions has NAPI segfault)
+# Version check — pin to 1.14.33 (newer versions bundle Bun 1.3.13 with NAPI segfault, opencode#24148)
+SAFE_VERSION="1.14.33"
 CURRENT_VERSION=$(opencode --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-echo "OpenCode version: ${CURRENT_VERSION:-unknown}"
-echo "Auto-upgrade disabled (Bun NAPI segfault in newer versions, see opencode#24148)"
+echo "OpenCode version: ${CURRENT_VERSION:-unknown} (safe: $SAFE_VERSION)"
+
+if [ "$CURRENT_VERSION" != "$SAFE_VERSION" ]; then
+  echo ""
+  echo "⚠️  WARNING: OpenCode $CURRENT_VERSION may crash (Bun NAPI segfault on Apple Silicon)."
+  echo "   Safe version is $SAFE_VERSION. To downgrade:"
+  echo ""
+  echo "   brew tap-new \$USER/local-opencode"
+  echo "   brew extract --version=$SAFE_VERSION opencode \$USER/local-opencode"
+  echo "   brew install \$USER/local-opencode/opencode@$SAFE_VERSION"
+  echo "   brew pin opencode"
+  echo ""
+fi
 brew pin opencode 2>/dev/null || true
 
 command -v npx >/dev/null 2>&1 || {
