@@ -2,8 +2,6 @@
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
   "preset": "github-copilot",
   "agents": {
-    "oracle": { "displayName": "plan-reviewer" },
-    "fixer": { "displayName": "executor" },
     "plan-reviewer": {
       "model": "github-copilot/claude-sonnet-4.6",
       "prompt": "You are plan-reviewer. You review PLANS (task_plan.md), not code. Code review goes to @code-reviewer. Assess: completeness, feasibility, testability, dependencies, security, brownfield safety. Max 2 review cycles.",
@@ -22,47 +20,11 @@
         "skills": ["*"],
         "mcps": ["*", "!context7"]
       },
-      "oracle": {
-        "model": "github-copilot/claude-sonnet-4.6",
-        "variant": "high",
-        "skills": ["simplify"],
-        "mcps": ["context7", "grep_app"]
-      },
-      "fixer": {
-        "model": "github-copilot/gpt-5.3-codex",
-        "variant": "medium",
-        "skills": [],
-        "mcps": []
-      },
       "code-reviewer": {
         "model": "github-copilot/gpt-5.4",
         "variant": "high",
         "skills": [],
         "mcps": ["context7", "grep_app", "exa"]
-      },
-      "explorer": {
-        "model": "github-copilot/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [],
-        "mcps": []
-      },
-      "librarian": {
-        "model": "github-copilot/gpt-5.4-mini",
-        "variant": "low",
-        "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
-      },
-      "designer": {
-        "model": "github-copilot/gpt-5.4-mini",
-        "variant": "medium",
-        "skills": ["agent-browser"],
-        "mcps": []
-      },
-      "council": {
-        "model": "github-copilot/claude-sonnet-4.6",
-        "variant": "high",
-        "skills": [],
-        "mcps": []
       }
     }
   }
