@@ -133,6 +133,30 @@ rm -rf "$HOME/.cache/opencode/packages/gsd-opencode@latest" \
        "$HOME/.config/opencode/gsd" 2>/dev/null
 echo "OK plugin caches cleared (will rebuild on next opencode launch)"
 
+# ─── Safety-net custom rules (team-wide) ──────────────────────────
+echo ""
+echo "--- Installing safety-net rules ---"
+SAFETY_NET_DIR="$HOME/.cc-safety-net"
+mkdir -p "$SAFETY_NET_DIR"
+if [ -f "$SAFETY_NET_DIR/config.json" ]; then
+  python3 - "$REPO_DIR/safety-net-rules.json" "$SAFETY_NET_DIR/config.json" <<'PYEOF'
+import json, sys, os
+template = json.load(open(sys.argv[1]))
+target_path = sys.argv[2]
+target = json.load(open(target_path)) if os.path.exists(target_path) else {"version": 1, "rules": []}
+template_names = {r["name"].lower() for r in template.get("rules", [])}
+merged = [r for r in target.get("rules", []) if r["name"].lower() not in template_names]
+merged.extend(template.get("rules", []))
+target["version"] = 1
+target["rules"] = merged
+json.dump(target, open(target_path, "w"), indent=2, ensure_ascii=False)
+print("OK safety-net rules merged")
+PYEOF
+else
+  cp "$REPO_DIR/safety-net-rules.json" "$SAFETY_NET_DIR/config.json"
+  echo "OK safety-net rules installed"
+fi
+
 # ─── Upgrade Bun (fixes NAPI crash bugs) ─────────────────────────
 if command -v bun >/dev/null 2>&1; then
   echo ""

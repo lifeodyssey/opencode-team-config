@@ -15,22 +15,33 @@ One-command setup for the team's shared OpenCode configuration: plugins, MCPs, a
 
 | Agent | Model | Role | Config |
 |-------|-------|------|--------|
-| Orchestrator | claude-opus-4.6 | Routes tasks, creates worktrees, coordinates pipeline | `agents/orchestrator_append.md` |
-| plan-reviewer | gpt-5.5 | Reviews PLANS (not code). Max 2 cycles. | custom agent in slim json |
-| executor | gpt-5.5 | TDD implementation (RED→GREEN→REFACTOR) | custom agent in slim json |
-| code-reviewer | claude-sonnet-4.6 | Reviews CODE (not plans). 8-dimension framework. | `agents/code-reviewer.md` |
+| Orchestrator | claude-sonnet-4.6 | Routes tasks, creates worktrees, coordinates pipeline | `agents/orchestrator_append.md` |
+| plan-reviewer | claude-sonnet-4.6 | Reviews PLANS (not code). Max 2 cycles. | custom agent in slim json |
+| executor | gpt-5.3-codex | TDD implementation (RED→GREEN→REFACTOR) | custom agent in slim json |
+| code-reviewer | gpt-5.4 | Reviews CODE (not plans). 8-dimension framework. | `agents/code-reviewer.md` |
 | Explorer | gpt-5.4-mini | Codebase discovery and pattern mapping | slim default |
 | Librarian | gpt-5.4-mini | Documentation research + requirement clarification | `agents/librarian_append.md` |
 | Designer | gpt-5.4-mini | UI/UX design | slim default |
-| Council | gpt-5.5 | Multi-model consensus for critical decisions | slim default |
-| oracle | gpt-5.5 | Plan review (slim built-in, kept for routing compat) | slim default |
-| fixer | gpt-5.4-mini | Implementation (slim built-in, kept for routing compat) | slim default |
+| Council | claude-sonnet-4.6 | Multi-model consensus for critical decisions | slim default |
+| oracle | claude-sonnet-4.6 | Plan review (slim built-in, aliased to plan-reviewer) | slim default |
+| fixer | gpt-5.3-codex | Implementation (slim built-in, aliased to executor) | slim default |
 
 ## Workflow
 
+### Task Identification
+Every code-change task starts by asking for a card/work item number (AB#1234). The card number is used to name worktrees, branches, plan files, spec files, and commit messages.
+
+### Pipeline Routing (lite/full)
+
+**Global rules** (TDD, git safety, file boundaries) apply to ALL tasks regardless of pipeline.
+
 ```
-User input
-  → Orchestrator classifies + creates worktree
+Lite Pipeline (simple tasks: single-file bugfix, ≤2 files):
+  → @executor: TDD (RED→GREEN→REFACTOR→COMMIT)
+  → @code-reviewer: validates (max 2 cycles)
+
+Full Pipeline (complex tasks: multi-file feature, unclear requirements):
+  → Orchestrator classifies + creates worktree (feat/AB1234-<name>)
   → @Librarian: requirements clarification (/grill-me)
   → @Explorer: codebase scan
   → GSD /gsd-plan-phase → task_plan.md (numbered cards)
@@ -42,7 +53,7 @@ User input
   → squash to 1 commit (trunk-based)
 ```
 
-## Plugins (8)
+## Plugins (9)
 
 | Plugin | Purpose |
 |--------|---------|
@@ -57,6 +68,20 @@ User input
 | `context-mode` | MCP output compression (98% reduction) |
 
 Note: GSD is installed as skills/commands (not plugin) via `npx gsd-opencode --global` to avoid Bun crash.
+
+## Safety Net Rules
+
+Team-enforced rules via `cc-safety-net` (installed to `~/.cc-safety-net/config.json`):
+
+| Rule | Blocked Command | Reason |
+|------|----------------|--------|
+| no-skip-commit-hooks | `git commit --no-verify` | Bypasses pre-commit checks |
+| no-skip-commit-hooks-short | `git commit -n` | Short form of --no-verify |
+| no-skip-push-hooks | `git push --no-verify` | Bypasses pre-push checks |
+| no-skip-merge-hooks | `git merge --no-verify` | Bypasses pre-merge checks |
+| no-skip-rebase-hooks | `git rebase --no-verify` | Bypasses rebase hooks |
+
+These are additive to cc-safety-net's built-in protections (force push, reset --hard, rm -rf, etc.).
 
 ## MCP Servers (8)
 
