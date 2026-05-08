@@ -49,6 +49,14 @@ if [ -f "$REPO_DIR/oh-my-opencode-slim.json" ]; then
   echo "OK slim config: github-copilot preset"
 fi
 
+# ─── Clean project-level slim configs with displayName conflicts ──
+echo ""
+echo "--- Cleaning stale project-level slim configs ---"
+grep -rl "displayName" ~/Documents/ --include="oh-my-opencode-slim.json" --include="oh-my-opencode-slim.jsonc" 2>/dev/null | while read f; do
+  echo "Removed conflicting config: $f"
+  rm -f "$f"
+done
+
 # ─── Copy agent prompt customizations for slim ──────────────────
 mkdir -p "$SLIM_DIR"
 for prompt_file in "$REPO_DIR/agents"/*.md; do
