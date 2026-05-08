@@ -36,7 +36,7 @@ mkdir -p "$OPENCODE_DIR/skills" "$OPENCODE_DIR/plugins"
 echo ""
 echo "--- Installing oh-my-opencode-slim ---"
 if command -v bunx >/dev/null 2>&1; then
-  bunx oh-my-opencode-slim@latest install --reset 2>/dev/null || echo "Warning: oh-my-opencode-slim install had issues. You may need to run: bunx oh-my-opencode-slim@latest install"
+  bunx oh-my-opencode-slim@latest install 2>/dev/null || echo "Warning: oh-my-opencode-slim install had issues. You may need to run: bunx oh-my-opencode-slim@latest install"
 else
   echo "Warning: bunx not found. Install bun (brew install oven-sh/bun/bun) then run: bunx oh-my-opencode-slim@latest install"
 fi
@@ -55,6 +55,14 @@ for prompt_file in "$REPO_DIR/agents"/*.md; do
   prompt_name=$(basename "$prompt_file")
   cp "$prompt_file" "$SLIM_DIR/$prompt_name"
   echo "OK agent prompt: $prompt_name"
+done
+# Remove stale agent prompts not in repo (e.g. oracle.md, fixer.md from v1)
+for deployed_file in "$SLIM_DIR"/*.md; do
+  deployed_name=$(basename "$deployed_file")
+  if [ ! -f "$REPO_DIR/agents/$deployed_name" ]; then
+    rm -f "$deployed_file"
+    echo "Removed stale agent prompt: $deployed_name"
+  fi
 done
 
 # ─── Install ast-grep CLI ───────────────────────────────────────
