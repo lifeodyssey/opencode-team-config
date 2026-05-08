@@ -21,15 +21,14 @@ CURRENT_VERSION=$(opencode --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-
 echo "OpenCode version: ${CURRENT_VERSION:-unknown} (safe: $SAFE_VERSION)"
 
 if [ "$CURRENT_VERSION" != "$SAFE_VERSION" ]; then
-  echo ""
-  echo "⚠️  WARNING: OpenCode $CURRENT_VERSION may crash (Bun NAPI segfault on Apple Silicon)."
-  echo "   Safe version is $SAFE_VERSION. To downgrade:"
-  echo ""
-  echo "   brew tap-new \$USER/local-opencode"
-  echo "   brew extract --version=$SAFE_VERSION opencode \$USER/local-opencode"
-  echo "   brew install \$USER/local-opencode/opencode@$SAFE_VERSION"
-  echo "   brew pin opencode"
-  echo ""
+  echo "Downgrading OpenCode to $SAFE_VERSION..."
+  brew unpin opencode 2>/dev/null || true
+  LOCAL_TAP="$(whoami)/local-opencode"
+  brew tap-new "$LOCAL_TAP" 2>/dev/null || true
+  brew extract --version="$SAFE_VERSION" opencode "$LOCAL_TAP" 2>/dev/null
+  brew install "$LOCAL_TAP/opencode@$SAFE_VERSION" 2>/dev/null && {
+    echo "OK OpenCode downgraded to $SAFE_VERSION"
+  } || echo "Warning: auto-downgrade failed. Run manually: brew extract --version=$SAFE_VERSION opencode $LOCAL_TAP && brew install $LOCAL_TAP/opencode@$SAFE_VERSION"
 fi
 brew pin opencode 2>/dev/null || true
 
