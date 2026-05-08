@@ -1,10 +1,74 @@
+## TASK IDENTIFICATION
+
+Before starting any code-change task:
+
+1. **Ask for the card number**: "What is the card/work item number? (e.g. AB#1234, PBI#567)"
+2. **Use the card number to name**:
+   - Worktree: `.worktrees/feat-AB1234-<short-description>`
+   - Branch: `feat/AB1234-<short-description>`
+   - Plan file: `.sisyphus/plans/AB1234-<short-description>.md`
+   - Spec file: `.sisyphus/specs/AB1234-<short-description>.md`
+   - Commit messages: prefix with `AB#1234`
+3. **Multi-worktree for large tasks**: When a card requires multiple worktrees (parallel cards), append a suffix:
+   - `.worktrees/feat-AB1234-auth-backend`
+   - `.worktrees/feat-AB1234-auth-frontend`
+   - Each worktree gets its own branch: `feat/AB1234-auth-backend`, `feat/AB1234-auth-frontend`
+
+If the user says no card number (ad-hoc work), use a descriptive name instead.
+
+## GLOBAL RULES (ALWAYS ENFORCED)
+
+These rules apply to ALL tasks — regardless of whether you use the lite or full pipeline.
+
+### Git Safety
+- NEVER use `--no-verify` or `-n` flag on any git command
+- NEVER use `--force` or `-f` on git push (use `--force-with-lease` if absolutely necessary)
+- NEVER use `git add -A` / `git add .` / `git add --all` — always add specific files
+- NEVER skip pre-commit hooks
+
+### TDD Iron Law
+- NO production code without a failing test first
+- Code written before tests → delete and restart
+- Applies even to "simple" or "one-line" changes
+
+### File Boundary (B3-B5)
+- B3: Only modify files relevant to the current task
+- B4: Deleting ≥5 lines or changing public interface → grep all references first, confirm with user
+- B5: Before creating new code → grep for existing implementation first. Found → reuse.
+
+### Delegation
+- NEVER implement code yourself — always delegate to @executor (or @fixer)
+- NEVER review code yourself — always delegate to @code-reviewer
+
+## PIPELINE ROUTING
+
+### Classify every task
+Classify: feature | bugfix | refactor | infra | research
+
+### Lite Pipeline (simple tasks)
+Use when: single-file bugfix, config change, small refactor (≤2 files, clear scope)
+
+1. @executor implements (TDD: RED→GREEN→REFACTOR→COMMIT)
+2. @code-reviewer validates (max 2 cycles)
+3. Done
+
+Skip: REQUIREMENTS, EXPLORE, PLAN, PLAN REVIEW phases.
+Global rules still apply.
+
+### Full Pipeline (complex tasks)
+Use when: multi-file feature, architecture change, unclear requirements, new module
+
+Phase 1–6 as defined below (REQUIREMENTS → EXPLORE → PLAN → PLAN REVIEW → EXECUTE → SHIP)
+
+---
+
 ## ADDITIONAL WORKFLOW RULES
 
 ### Task Classification
 Classify every task: feature | bugfix | refactor | infra | research
 
-### Worktree (superpowers: /using-git-worktrees)
-Always create isolated worktree: `git worktree add .worktrees/feat-<name> -b feat/<name>`
+### Worktree
+Always create isolated worktree using the card number naming convention (see TASK IDENTIFICATION above).
 
 ### Task Tracking (Card System)
 Track every task as a numbered card. Use checkbox format in task_plan.md:
@@ -26,7 +90,7 @@ On session resume: read boulder.json, find last unchecked card, continue from th
 ### Context Management (auto-triggered, no manual action needed)
 These plugins handle context automatically — do NOT duplicate their work:
 - **opencode-dcp** (plugin): auto-compresses/deduplicates conversation before sending to LLM
-- **claude-mem-opencode** (plugin): auto-captures session → auto-injects relevant memories next session
+- **opencode-working-memory** (plugin): auto-captures session → auto-injects relevant memories next session
 - **context-mode** (MCP): auto-compresses MCP tool outputs (315KB→5.4KB)
 - **oh-my-opencode-slim hooks**: context-window-monitor, preemptive-compaction, session-recovery
 - **opencode-agent-skills** (plugin): auto-re-injects skill list after context compaction
@@ -105,10 +169,4 @@ Use /dispatching-parallel-agents (superpowers) for [P] dispatch.
 - @Oracle (plan-reviewer) BLOCKs twice → escalate to user
 - @Fixer stalls 3 iterations → use /diagnose (mattpocock) + pivot
 - @code-reviewer BLOCKs twice on same code → escalate to user
-- Never: force-push, rm -rf, skip tests
 - Trunk-based: all branches squash to 1 commit
-
-### Old Project Guardrails (from flow-kit B3-B5)
-- B3: Each card declares read_files + write_files. After @Fixer commits, check git diff. Files outside boundary → rollback.
-- B4: Delete ≥5 lines or change public interface → grep all references first, show user, wait for confirm.
-- B5: Before writing new code for any capability → grep project for existing implementation first. Found → reuse. Not found → create.
