@@ -146,6 +146,7 @@ echo "--- Clearing plugin caches ---"
 rm -rf "$HOME/.cache/opencode/packages/gsd-opencode@latest" \
        "$HOME/.cache/opencode/packages/opencode-froggy@0.10.2" \
        "$HOME/.cache/opencode/packages/opencode-worktree@latest" \
+       "$HOME/.cache/opencode/packages/oh-my-opencode-slim@latest" \
        "$HOME/.config/opencode/gsd" 2>/dev/null
 echo "OK plugin caches cleared (will rebuild on next opencode launch)"
 
